@@ -2,22 +2,42 @@ import 'package:flutter/material.dart';
 
 void main() async {
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: MyApp(),
-      ),
-    ),
+    MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Hello World 👋',
-        textDirection: TextDirection.ltr,
+    return Scaffold(
+      body: Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(
+                '$_counter',
+              ),
+              TextButton(
+                onPressed: _incrementCounter,
+                child: const Text('Add number'),
+              ),
+            ]),
       ),
     );
   }

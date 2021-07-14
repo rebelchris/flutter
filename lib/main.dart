@@ -1,78 +1,101 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
-  runApp(
-    MaterialApp(debugShowCheckedModeBanner: false, initialRoute: '/', routes: {
-      '/': (context) => RouteOne(),
-      '/detail': (context) => RouteTwo(item: ''),
-    }),
-  );
+  runApp(AnimeApp());
 }
 
-class RouteOne extends StatelessWidget {
-  final list = List.generate(20, (index) => 'Item $index');
+class AnimeApp extends StatefulWidget {
+  AnimeApp({Key? key}) : super(key: key);
+
+  @override
+  _AnimeAppState createState() => _AnimeAppState();
+}
+
+class _AnimeAppState extends State<AnimeApp> {
+  late Future<List<Show>> shows;
+
+  @override
+  void initState() {
+    super.initState();
+    shows = fetchShows();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Screen one ☝️'),
-      ),
-      body: Center(
-        child: ListView.builder(
-          itemCount: list.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(list[index]),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RouteTwo(
-                      item: list[index],
-                    ),
+    return MaterialApp(
+      title: 'Anime app',
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(title: Text('Anime app')),
+        body: Center(
+          child: FutureBuilder(
+            builder: (context, AsyncSnapshot<List<Show>> snapshot) {
+              if (snapshot.hasData) {
+                return Center(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage:
+                              NetworkImage('${snapshot.data?[index].imageUrl}'),
+                        ),
+                        title: Text('${snapshot.data?[index].title}'),
+                        subtitle: Text('Score: ${snapshot.data?[index].score}'),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const Divider(),
                   ),
                 );
-              },
-            );
-          },
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Something went wrong :('));
+              }
+
+              return CircularProgressIndicator();
+            },
+            future: shows,
+          ),
         ),
       ),
     );
   }
 }
 
-class RouteTwo extends StatelessWidget {
-  final String item;
+class Show {
+  final int malId;
+  final String title;
+  final String imageUrl;
+  final double score;
 
-  RouteTwo({Key? key, required this.item}) : super(key: key);
+  Show({
+    required this.malId,
+    required this.title,
+    required this.imageUrl,
+    required this.score,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Screen two ✌️'),
-      ),
-      body: Center(
-          child: Column(
-        children: [
-          Spacer(),
-          Text(
-            'You clicked on: $item',
-            style: TextStyle(fontSize: 32),
-          ),
-          Spacer(),
-          ElevatedButton(
-            // Within the `FirstScreen` widget
-            onPressed: () {
-              // Navigate to the second screen using a named route.
-              Navigator.pop(context);
-            },
-            child: Text('Go back'),
-          ),
-          Spacer(),
-        ],
-      )),
+  factory Show.fromJson(Map<String, dynamic> json) {
+    return Show(
+      malId: json['mal_id'],
+      title: json['title'],
+      imageUrl: json['image_url'],
+      score: json['score'],
     );
+  }
+}
+
+Future<List<Show>> fetchShows() async {
+  final response =
+      await http.get(Uri.parse('https://api.jikan.moe/v3/top/anime/1'));
+
+  if (response.statusCode == 200) {
+    var topShowsJson = jsonDecode(response.body)['top'] as List;
+    return topShowsJson.map((show) => Show.fromJson(show)).toList();
+  } else {
+    throw Exception('Failed to load shows');
   }
 }

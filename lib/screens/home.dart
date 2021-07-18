@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/screens/detail.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -43,9 +44,8 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
-                              item: snapshot.data![index].malId,
-                              title: snapshot.data![index].title,
-                            ),
+                                item: snapshot.data![index].malId,
+                                title: snapshot.data![index].title),
                           ),
                         );
                       },

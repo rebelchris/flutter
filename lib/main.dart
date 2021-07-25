@@ -15,6 +15,7 @@ class AnimeApp extends StatefulWidget {
 
 class _AnimeAppState extends State<AnimeApp> {
   late Future<List<Show>> shows;
+  String searchString = "";
 
   @override
   void initState() {
@@ -29,36 +30,66 @@ class _AnimeAppState extends State<AnimeApp> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: Text('Anime app')),
-        body: Center(
-          child: FutureBuilder(
-            builder: (context, AsyncSnapshot<List<Show>> snapshot) {
-              if (snapshot.hasData) {
-                return Center(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage:
-                              NetworkImage('${snapshot.data?[index].imageUrl}'),
-                        ),
-                        title: Text('${snapshot.data?[index].title}'),
-                        subtitle: Text('Score: ${snapshot.data?[index].score}'),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) =>
-                        const Divider(),
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Something went wrong :('));
-              }
-
-              return CircularProgressIndicator();
-            },
-            future: shows,
-          ),
+        body: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchString = value.toLowerCase();
+                  });
+                },
+                decoration: InputDecoration(
+                    labelText: 'Search', suffixIcon: Icon(Icons.search)),
+              ),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: FutureBuilder(
+                builder: (context, AsyncSnapshot<List<Show>> snapshot) {
+                  if (snapshot.hasData) {
+                    return Center(
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return snapshot.data![index].title
+                                  .toLowerCase()
+                                  .contains(searchString)
+                              ? ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        '${snapshot.data?[index].imageUrl}'),
+                                  ),
+                                  title: Text('${snapshot.data?[index].title}'),
+                                  subtitle: Text(
+                                      'Score: ${snapshot.data?[index].score}'),
+                                )
+                              : Container();
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return snapshot.data![index].title
+                                  .toLowerCase()
+                                  .contains(searchString)
+                              ? Divider()
+                              : Container();
+                        },
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Something went wrong :('));
+                  }
+                  return CircularProgressIndicator();
+                },
+                future: shows,
+              ),
+            ),
+          ],
         ),
       ),
     );

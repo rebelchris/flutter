@@ -5,6 +5,9 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        appBar: AppBar(
+          title: Text('Gradients'),
+        ),
         body: MyApp(),
       ),
     ),
@@ -14,10 +17,31 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Hello World 👋',
-        textDirection: TextDirection.ltr,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          stops: [
+            0.1,
+            0.4,
+            0.9,
+          ],
+          colors: [
+            Color(0xffD16BA5),
+            Color(0xff86A8E7),
+            Color(0xff5FFBF1),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Text(
+          'Hello world 👋',
+          style: TextStyle(
+            fontSize: 50.0,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }

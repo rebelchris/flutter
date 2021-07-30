@@ -88,11 +88,14 @@ class RouteOne extends StatelessWidget {
                 ),
               );
             },
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(_items[index].image),
+            child: Hero(
+              tag: _items[index].image,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(_items[index].image),
+                  ),
                 ),
               ),
             ),
@@ -122,8 +125,11 @@ class RouteTwo extends StatelessWidget {
             aspectRatio: 1,
             child: Container(
               width: double.infinity,
-              child: Image(
-                image: NetworkImage(image),
+              child: Hero(
+                tag: image,
+                child: Image(
+                  image: NetworkImage(image),
+                ),
               ),
             ),
           ),

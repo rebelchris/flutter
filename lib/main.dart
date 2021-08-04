@@ -15,9 +15,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        'Hello World 👋',
-        textDirection: TextDirection.ltr,
+      child: ElevatedButton(
+        onPressed: () {
+          final snackbar = SnackBar(
+            content: const Text('Successfully modified row x'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                // Add your undo code here
+              },
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        },
+        child: const Text('Open the snackbar'),
       ),
     );
   }
